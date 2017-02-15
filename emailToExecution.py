@@ -24,7 +24,7 @@ result, data = mail.fetch(latest_email_id, "(RFC822)")
 raw_email = data[0][1].decode("utf-8")
 email_message = email.message_from_string(raw_email)
 recieved = email_message['Received']
-if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+2:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60000):
+if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+2:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60):
     if email_message.is_multipart():
         msg = email_message.get_payload()[0].as_string()
     else:
