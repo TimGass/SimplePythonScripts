@@ -9,6 +9,7 @@ from dateutil import tz
 import subprocess
 from confidentials import *
 import re
+import math
 
 mail = imaplib.IMAP4_SSL('imap.gmail.com')
 mail.login(myEmail, gpass)
@@ -24,7 +25,7 @@ result, data = mail.fetch(latest_email_id, "(RFC822)")
 raw_email = data[0][1].decode("utf-8")
 email_message = email.message_from_string(raw_email)
 recieved = email_message['Received']
-if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+2:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60):
+if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+2:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60000):
     if email_message.is_multipart():
         msg = email_message.get_payload()[0].as_string()
     else:
@@ -37,10 +38,30 @@ if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - dateti
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(myEmail, gpass)
+    prependString = "Output:\n"
     for i in range(1, len(msgArray)-1, 2):
         if msgArray[0] == executionString:
             try:
                 output = subprocess.check_output([ msgArray[i], msgArray[i+1]])
+                if len(output.decode("utf-8")) != 0:
+                    charArray = list(output.decode("utf-8"))
+                    lastLinePosition = 0
+                    numTexts = math.ceil(((len(charArray) + len(prependString))/140))
+                    for x in range(0, numTexts):
+                        for i in range(x*140, (x+1)*140):
+                            try:
+                                if '\n' == charArray[i]:
+                                    lastLinePosition = i;
+                            except IndexError:
+                                lastLinePosition = lastLinePosition
+                        if x == 0:
+                            message = MIMEText(prependString + output.decode("utf-8")[x*140:lastLinePosition])
+                        else:
+                            message = MIMEText(output.decode("utf-8")[x*140:lastLinePosition])
+                        message['Subject'] = ""
+                        message['From'] = myEmail
+                        message['To'] = phone
+                        server.sendmail(myEmail, [phone], message.as_string())
             except subprocess.CalledProcessError as error:
                 error = MIMEText(str(error))
                 error['Subject'] = "Command Error"
