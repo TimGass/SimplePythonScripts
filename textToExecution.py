@@ -16,7 +16,7 @@ mail.login(myEmail, gpass)
 mail.list
 
 mail.select("inbox")
-result, data = mail.search(None, "(FROM " + myEmail + ")")
+result, data = mail.search(None, "(FROM " + phone + ")")
 ids = data[0] # data is a list.
 id_list = ids.split() # ids is a space separated string
 latest_email_id = id_list[-1] # get the latest
@@ -25,11 +25,11 @@ result, data = mail.fetch(latest_email_id, "(RFC822)")
 raw_email = data[0][1].decode("utf-8")
 email_message = email.message_from_string(raw_email)
 recieved = email_message['Received']
-if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+2:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60000):
+if abs(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.strptime(recieved[recieved.find(";")+11:len(recieved)-6], '%a, %d %b %Y %H:%M:%S %z').astimezone(tz.gettz("America/Chicago"))) < datetime.timedelta(seconds=60000):
     if email_message.is_multipart():
         msg = email_message.get_payload()[0].as_string()
     else:
-        msg = email_message.get_payload().as_string()
+        msg = email_message.get_payload()
     #remove extra spaces that exist, for some reason
     msg = msg[msg.find("\n")+1:len(msg)]
     msg = msg[msg.find("\n")+1:len(msg)]

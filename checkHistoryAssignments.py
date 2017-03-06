@@ -3,6 +3,8 @@ import requests
 import smtplib
 from email.mime.text import MIMEText
 from confidentials import *
+import math
+import time
 
 session = requests.Session()
 data = { 'd2l_referer': '', 'userName': userName, 'password': password }
@@ -42,13 +44,15 @@ dataString = "Here are your reminders for the day:\n"
 for string in data:
     dataString += string + "\n"
 stringList = []
-textsNum = round(len(dataString)/140)
+textsNum = math.ceil(len(dataString)/140)
 for i in range(textsNum):
     if(i == 0):
         stringList.append(dataString[:dataString.find("\n", ((i*140))+140)])
     else:
         stringList.append(dataString[dataString.find("\n", (i*140)):dataString.find("\n", ((i*140))+140)])
 for string in stringList:
+    if stringList.index(string) != 0:
+        time.sleep(100)
     msg = MIMEText(string)
     msg['Subject'] = ""
     msg['From'] = myEmail
