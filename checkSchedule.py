@@ -57,22 +57,22 @@ for i, val in enumerate(details):
         dataString += val + " "
     else:
         dataString += val + ": " + times[int((i-1)/2)] + "\n"
-stringList = []
-textsNum = math.ceil(len(dataString)/140)
-for i in range(textsNum):
-    if(i == 0):
-        stringList.append(dataString[:dataString.find("\n", 140)])
-    else:
-        stringList.append(dataString[dataString.find("\n", (i*140)):dataString.find("\n", ((i*140))+140)])
-for string in stringList:
-    if stringList.index(string) != 0:
-        time.sleep(100)
-    msg = MIMEText(string)
-    msg['Subject'] = ""
-    msg['From'] = myEmail
-    msg['To'] = phone
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(myEmail, gpass)
-    server.sendmail(myEmail, [phone], msg.as_string())
-    server.quit()
+# stringList = []
+# textsNum = math.ceil(len(dataString)/140)
+# for i in range(textsNum):
+#     if(i == 0):
+#         stringList.append(dataString[:dataString.find("\n", 140)])
+#     else:
+#         stringList.append(dataString[dataString.find("\n", (i*140)):dataString.find("\n", ((i*140))+140)])
+# for string in stringList:
+#     if stringList.index(string) != 0:
+#         time.sleep(.05)
+msg = MIMEText(dataString)
+msg['Subject'] = ""
+msg['From'] = myEmail
+msg['To'] = phone
+server = smtplib.SMTP('smtp.gmail.com', 587)
+server.starttls()
+server.login(myEmail, gpass)
+server.sendmail(myEmail, [phone], msg.as_string())
+server.quit()
